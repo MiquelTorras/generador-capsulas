@@ -1,10 +1,12 @@
 import express from 'express'
 import { generarCapsulas, supabase } from './generadorCapsulas.js'
+import cors from 'cors'
 
 console.log('🚀 SERVER NUEVO CARGADO')
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use(express.static('public'))
 
