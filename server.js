@@ -6,13 +6,21 @@ import cors from 'cors'
 const app = express()
 
 // 🔐 CORS (solo tu dominio)
-app.use(cors({
-  origin: 'https://www.homomobilis.net'
-}))
 
-// 🔥 IMPORTANTE: responder a preflight (OPTIONS)
-app.options('/generar', (req, res) => res.sendStatus(200))
-app.options('/regenerar', (req, res) => res.sendStatus(200))
+
+app.use(cors())
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://www.homomobilis.net")
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+  res.header("Access-Control-Allow-Headers", "Content-Type")
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200)
+  }
+
+  next()
+})
 
 app.use(express.json())
 app.use(express.static('public'))
