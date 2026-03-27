@@ -153,13 +153,13 @@ function seleccionarEjerciciosProgresivo(ejercicios, orden) {
   )
 
   // pool activo
-  const activos = ejercicios.slice(0, totalActivos)
+  const activos = shuffle([...ejercicios]).slice(0, totalActivos)
 
   return activos
 }
 
 // -------------------- INSERT --------------------
-async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, recientes, orden) {
+async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, recientes, orden, usadosEnDia) {
   
   const tipoPorId = {}
     ejercicios.forEach(e => {
@@ -168,7 +168,7 @@ async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, reciente
   const activos = seleccionarEjerciciosProgresivo(ejercicios, orden)
   const grupos = agruparPorTipo(activos)
 
-  const penalizar = (id) => frecuencia[id] || 0
+  const penalizar = (id) => (frecuencia[id] || 0) * 5
 
   for (let intento = 0; intento < 200; intento++) {
     const seleccion = seleccionarEjercicios(grupos)
@@ -182,11 +182,13 @@ async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, reciente
 
         const key = normalizar(a, b)
 
-       const esValida =
+        const esValida =
           !parejasUsadas.has(key) &&
           tipoPorId[a] !== tipoPorId[b] &&
           !recientes.has(a) &&
-          !recientes.has(b)
+          !recientes.has(b) &&
+          !usadosEnDia.has(a) &&
+          !usadosEnDia.has(b)
 
         // fallback suave
         const esFallback =
@@ -221,6 +223,9 @@ async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, reciente
 
       if (error) throw error
 
+      usadosEnDia.add(mejor.a)
+      usadosEnDia.add(mejor.b)
+
       // actualizar memoria
       frecuencia[mejor.a] = (frecuencia[mejor.a] || 0) + 1
       frecuencia[mejor.b] = (frecuencia[mejor.b] || 0) + 1
@@ -244,8 +249,17 @@ export async function generarCapsulas(cantidad = 1) {
   const frecuencia = await getFrecuenciaEjercicios()
 
   let orden = await getSiguienteOrden()
+  let usadosEnDia = new Set()
+  let contadorDia = 0
 
   for (let i = 0; i < cantidad; i++) {
+
+    // 🔄 cada 4 cápsulas → nuevo día
+    if (contadorDia === 4) {
+      usadosEnDia.clear()
+      contadorDia = 0
+    }
+
     const recientes = await getEjerciciosRecientes(5)
 
     await generarUnaCapsula(
@@ -253,9 +267,11 @@ export async function generarCapsulas(cantidad = 1) {
       parejasUsadas,
       frecuencia,
       recientes,
-      orden
+      orden,
+      usadosEnDia // 👈 corregido (antes estaba mal escrito)
     )
 
+    contadorDia++
     orden++
   }
 }
