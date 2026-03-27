@@ -42,6 +42,9 @@ app.post('/regenerar', async (req, res) => {
   }
 })
 
-app.listen(3333, () => {
-  console.log('Servidor en http://localhost:3333')
+/* 🔥 ESTA ES LA PARTE IMPORTANTE PARA RENDER */
+const PORT = process.env.PORT || 3000
+
+app.listen(PORT, () => {
+  console.log(`Servidor en puerto ${PORT}`)
 })
