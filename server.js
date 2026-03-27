@@ -2,27 +2,22 @@ import express from 'express'
 import { generarCapsulas, supabase } from './generadorCapsulas.js'
 import cors from 'cors'
 
-console.log('🚀 SERVER NUEVO CARGADO')
 
 const app = express()
 
+// 🔐 CORS (solo tu dominio)
 app.use(cors({
-  origin: 'https://www.homomobilis.net',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
+  origin: 'https://www.homomobilis.net'
 }))
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://www.homomobilis.net')
-  res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type')
-  next()
-})
+// 🔥 IMPORTANTE: responder a preflight (OPTIONS)
+app.options('/generar', (req, res) => res.sendStatus(200))
+app.options('/regenerar', (req, res) => res.sendStatus(200))
 
 app.use(express.json())
 app.use(express.static('public'))
 
-// TEST SIMPLE (para comprobar que funciona)
+// TEST
 app.get('/test', (req, res) => {
   res.send('OK TEST')
 })
@@ -56,7 +51,7 @@ app.post('/regenerar', async (req, res) => {
   }
 })
 
-/* 🔥 ESTA ES LA PARTE IMPORTANTE PARA RENDER */
+// puerto Render
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
