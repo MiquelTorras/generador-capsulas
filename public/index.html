@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generador de Cápsulas</title>
+</head>
+<body>
+
+<h1>Generador de Cápsulas</h1>
+
+<h3>Configuración</h3>
+
+<label>Cantidad cápsulas:</label>
+<input id="cantidad" type="number" value="10"><br><br>
+
+<label>Crecimiento:</label>
+<input id="crecimiento" type="number" value="3"><br><br>
+
+<label>Bloque:</label>
+<input id="bloque" type="number" value="7"><br><br>
+
+<label>Separación temporal:</label>
+<input id="separacion" type="number" value="5"><br><br>
+
+<label>
+  <input type="checkbox" id="evitarMismoTipo" checked>
+  Evitar mismo tipo
+</label><br>
+
+<label>
+  <input type="checkbox" id="evitarRecientes" checked>
+  Evitar recientes
+</label><br><br>
+
+<button onclick="generar()">Generar cápsulas</button>
+<button onclick="regenerar()">Regenerar TODO</button>
+
+<p id="estado"></p>
+
+<script>
+function getConfig() {
+  return {
+    cantidad: parseInt(document.getElementById('cantidad').value),
+    crecimiento: parseInt(document.getElementById('crecimiento').value),
+    bloque: parseInt(document.getElementById('bloque').value),
+    separacion: parseInt(document.getElementById('separacion').value),
+    evitarMismoTipo: document.getElementById('evitarMismoTipo').checked,
+    evitarRecientes: document.getElementById('evitarRecientes').checked
+  }
+}
+
+async function generar() {
+  const config = getConfig()
+
+  await fetch('/generar', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(config)
+  })
+
+  document.getElementById('estado').innerText = 'Generadas'
+}
+
+async function regenerar() {
+  const config = getConfig()
+
+  await fetch('/regenerar', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(config)
+  })
+
+  document.getElementById('estado').innerText = 'Regeneradas'
+}
+</script>
+
+</body>
+</html>
