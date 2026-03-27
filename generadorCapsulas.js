@@ -193,7 +193,9 @@ async function generarUnaCapsula(ejercicios, parejasUsadas, frecuencia, reciente
         // fallback suave
         const esFallback =
           !parejasUsadas.has(key) &&
-          tipoPorId[a] !== tipoPorId[b]
+          tipoPorId[a] !== tipoPorId[b] &&
+          !usadosEnDia.has(a) &&
+          !usadosEnDia.has(b)
 
         if (esValida) {
           const score = penalizar(a) + penalizar(b)
